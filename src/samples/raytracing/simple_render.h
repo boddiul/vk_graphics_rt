@@ -57,6 +57,8 @@ public:
   void UpdateView();
 
   void LoadScene(const char *path) override;
+  void InitLights(std::vector<std::vector<float>> data);
+
   void DrawFrame(float a_time, DrawMode a_mode) override;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,7 +118,8 @@ protected:
     LiteMath::float4x4 model;
   } pushConst2M;
 
-  UniformParams m_uniforms {};
+  UniformParams m_uniforms1 {};
+  UniformParams m_uniforms2 {};
   VkBuffer m_ubo = VK_NULL_HANDLE;
   VkDeviceMemory m_uboAlloc = VK_NULL_HANDLE;
   void* m_uboMappedMem = nullptr;

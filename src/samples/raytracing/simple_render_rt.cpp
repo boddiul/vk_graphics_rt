@@ -83,14 +83,16 @@ void SimpleRender::RayTraceCPU()
   if(!m_pRayTracerCPU)
   {
     m_pRayTracerCPU = std::make_unique<RayTracer>(m_width, m_height);
-    m_pRayTracerCPU->SetScene(m_pAccelStruct);
+    m_pRayTracerCPU->SetScene(m_pAccelStruct, { &m_uniforms1,&m_uniforms2 }, m_pScnMgr->GetMeshInfos(), m_pScnMgr->GetMeshData(), m_pScnMgr->GetInstanceMatrices());
+
+
   }
 
   m_pRayTracerCPU->UpdateView(m_cam.pos, m_inverseProjViewMatrix);
 #pragma omp parallel for default(none)
-  for (size_t j = 0; j < m_height; ++j)
+  for (intptr_t j = 0; j < m_height; ++j)
   {
-    for (size_t i = 0; i < m_width; ++i)
+    for (intptr_t i = 0; i < m_width; ++i)
     {
       m_pRayTracerCPU->CastSingleRay(i, j, m_raytracedImageData.data());
     }
@@ -115,7 +117,7 @@ void SimpleRender::RayTraceGPU()
     auto tmp = std::make_shared<VulkanRTX>(m_pScnMgr);
     tmp->CommitScene();
 
-    m_pRayTracerGPU->SetScene(tmp);
+    m_pRayTracerGPU->SetScene(tmp, { &m_uniforms1, &m_uniforms2 }, m_pScnMgr->GetMeshInfos(),m_pScnMgr->GetMeshData(), m_pScnMgr->GetInstanceMatrices());
     m_pRayTracerGPU->SetVulkanInOutFor_CastSingleRay(m_genColorBuffer, 0);
     m_pRayTracerGPU->UpdateAll(m_pCopyHelper);
   }

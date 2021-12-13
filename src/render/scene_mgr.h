@@ -95,6 +95,8 @@ struct SceneManager
   std::vector<VkImageView>  GetTextureViews() const { return m_textureViews; }
 
   std::shared_ptr<IMeshData> GetMeshData() {return m_pMeshData; }
+  std::vector<MeshInfo> GetMeshInfos() { return m_meshInfos; }
+  std::vector<LiteMath::float4x4> GetInstanceMatrices() { return m_instanceMatrices; }
 
   uint32_t MeshesNum()    const {return m_meshInfos.size();}
   uint32_t InstancesNum() const {return m_instanceInfos.size();}

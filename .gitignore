@@ -3,3 +3,4 @@ build
 external/imgui
 external/vkutils
 external/volk
+.vs/

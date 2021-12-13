@@ -238,11 +238,11 @@ void SimpleRender::CreateUniformBuffer()
 
   VK_CHECK_RESULT(vkBindBufferMemory(m_device, m_ubo, m_uboAlloc, 0));
 
-  vkMapMemory(m_device, m_uboAlloc, 0, sizeof(m_uniforms), 0, &m_uboMappedMem);
+  vkMapMemory(m_device, m_uboAlloc, 0, sizeof(m_uniforms1), 0, &m_uboMappedMem);
 
-  m_uniforms.lightPos  = LiteMath::float4(0.0f, 1.0f,  1.0f, 1.0f);
-  m_uniforms.baseColor = LiteMath::float4(0.9f, 0.92f, 1.0f, 0.0f);
-  m_uniforms.animateLightColor = true;
+  m_uniforms1.baseColor = LiteMath::float4(0.9f, 0.92f, 1.0f, 0.0f);
+  m_uniforms1.animateLightColor = true;
+
 
   UpdateUniformBuffer(0.0f);
 }
@@ -250,8 +250,8 @@ void SimpleRender::CreateUniformBuffer()
 void SimpleRender::UpdateUniformBuffer(float a_time)
 {
 // most uniforms are updated in GUI -> SetupGUIElements()
-  m_uniforms.time = a_time;
-  memcpy(m_uboMappedMem, &m_uniforms, sizeof(m_uniforms));
+  m_uniforms1.time = a_time;
+  memcpy(m_uboMappedMem, &m_uniforms1, sizeof(m_uniforms1));
 }
 
 void SimpleRender::BuildCommandBufferSimple(VkCommandBuffer a_cmdBuff, VkFramebuffer a_frameBuff,
@@ -487,6 +487,19 @@ void SimpleRender::LoadScene(const char* path)
 
   SetupRTImage();
   CreateUniformBuffer();
+  InitLights({ {1.0f,1.0f,1.0f,10.0f},{0.5f,0.5f,0.5f,1.0f} });
+
+
+
+  if (strcmp(path, "../resources/scenes/043_cornell_normals/statex_00001.xml")==0)
+    InitLights({ {-0.2f,0.2f,2.6f,5.0f},{0.3f,-0.3f,4.7f,3.0f} });
+  else if (strcmp(path, "../resources/scenes/buggy/Buggy.gltf") == 0)
+  {
+    InitLights({ {64.706f,100.0f,17.308f,1500.0f},{-3.922f,64.706f,23.077f,1023.0f} });
+    m_cam.pos = float3(110, 110, 75);
+  }
+    
+
 
   SetupSimplePipeline();
   SetupQuadDescriptors();
@@ -499,6 +512,16 @@ void SimpleRender::LoadScene(const char* path)
 //  m_cam.tdist  = loadedCam.farPlane;
 
   UpdateView();
+}
+
+void SimpleRender::InitLights(std::vector<std::vector<float>> data)
+{
+
+
+    
+    m_uniforms1.lightPos = LiteMath::float4(data[0][0], data[0][1], data[0][2], data[0][3]);
+    m_uniforms2.lightPos = LiteMath::float4(data[1][0], data[1][1], data[1][2], data[1][3]);
+    
 }
 
 void SimpleRender::DrawFrameSimple()
@@ -689,8 +712,13 @@ void SimpleRender::SetupGUIElements()
     ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Press '2' for raytracing mode");
     ImGui::NewLine();
 
-    ImGui::ColorEdit3("Meshes base color", m_uniforms.baseColor.M, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-    ImGui::SliderFloat3("Light source position", m_uniforms.lightPos.M, -10.f, 10.f);
+    ImGui::SliderFloat3("Light source 1 position", m_uniforms1.lightPos.M, -100.f, 100.f);
+
+    ImGui::SliderFloat("Light source 1 intensity", &m_uniforms1.lightPos.w, 0.f, 2000.f);
+
+    ImGui::SliderFloat3("Light source 2 position", m_uniforms2.lightPos.M, -100.f, 100.f);
+
+    ImGui::SliderFloat("Light source 2 intensity", &m_uniforms2.lightPos.w, 0.f, 2000.f);
 
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
